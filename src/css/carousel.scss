@@ -2,7 +2,7 @@ $titleColor: #2770a0;
 $subtitleColor: #a0a0a0;
 
 .material-icons {
-  vertical-align: -5px; /* material icons vertical align fix */
+  vertical-align: -6px; /* material icons vertical align fix */
 }
 
 div.carousel {
@@ -85,7 +85,7 @@ div.carousel {
       top: 8px;
       left: 0;
       display: flex;
-      transition: all 0.5s;
+      transition: all 0.5s ease-in-out;
 
       .collection {
         text-align: center;

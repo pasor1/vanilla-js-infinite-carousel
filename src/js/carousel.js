@@ -1,33 +1,52 @@
+/** Class representing a carousel */
+
 export default class Carousel {
+  /**
+   * set the carousel.
+   * @param {Object} options - Carousel options.
+   * @param {string} [options.title=] - Title shown in header.
+   * @param {string} [options.subtitle=] - Subtitle shown in header.
+   * @param {string} [options.icon=tungsten] - Icon shown in header, from material icons https://fonts.google.com/icons.
+   * @param {!number} [options.cardWidth=200] - Card width (px).
+   * @param {!number} [options.cardGutter=10] - Space between cards (px).
+   * @param {!number} [options.cardHeight=240] - Card height (px).
+   * @param {!number} [options.imgHeight=100] - Image inside card height (px)..
+   * @param {!string} options.containerSelector - ID selector where render the carousel.
+   * @callback options.fetchCards - function returning an object representing the carousel content (cards).
+   * options.fetchCards
+   */
   constructor(options) {
     const settings = {
+      title: '',
+      subtitle: '',
+      icon: 'tungsten',
       cardWidth: 200,
       cardGutter: 10,
       cardHeight: 240,
       imgHeight: 100,
-      icon: 'tungsten',
       ...options
     };
 
+    this.containerSelector = settings.container;
+    this.fetchCards = settings.fetchCards;
     this.icon = settings.icon;
     this.title = settings.title;
     this.subtitle = settings.subtitle;
-    this.containerSelector = settings.container;
-    this.fetchCards = settings.fetchCards;
-
     this.cardWidth = settings.cardWidth;
     this.cardGutter = settings.cardGutter;
     this.cardHeight = settings.cardHeight;
     this.imgHeight = settings.imgHeight;
-
     this.stepSize = this.cardWidth + this.cardGutter * 2;
     this.chunkSize = 6;
     this.scrollPosition = 0;
     this.init();
   }
 
+  /**
+   * Initialize the carousel and put it into the DOM.
+   */
   init() {
-    const carouselTemplate = (title, subtitle) => `
+    const carouselTemplate = () => `
       <div class="header">
         <div>
           <div class="icon">
@@ -36,10 +55,10 @@ export default class Carousel {
         </div>
         <div>
           <h2 class="title">
-            ${title} <span class="material-icons">chevron_right</span>
+            ${this.title} <span class="material-icons">chevron_right</span>
           </h2>
           <p class="subtitle">
-            ${subtitle}
+            ${this.subtitle}
           </p>
         </div>
       </div>
@@ -61,10 +80,10 @@ export default class Carousel {
     this.carouselContainer.innerHTML = carouselTemplate(this.title, this.subtitle);
 
     // set elements 
-    this.cardsScrollContainer = document.querySelector(`#${this.containerSelector} .cards-container`);
-    this.cardsScroll = document.querySelector(`#${this.containerSelector} .cards-scroll`);
     this.controlPrevious = document.querySelector(`#${this.containerSelector} .previous`);
     this.controlNext = document.querySelector(`#${this.containerSelector} .next`);
+    this.cardsScrollContainer = document.querySelector(`#${this.containerSelector} .cards-container`);
+    this.cardsScroll = document.querySelector(`#${this.containerSelector} .cards-scroll`);
 
     // set listeners
     this.carouselContainer.addEventListener('mouseenter', () => this.showControls());
@@ -76,39 +95,51 @@ export default class Carousel {
     this.appendCards(this.chunkSize);
   };
 
-
+  /**
+   * Check controls (previous and next) visbility permissions and show it.
+   */
   showControls() {
     this.scrollPosition < 0
       ? this.showControlPrevious(true)
       : this.showControlPrevious(false);
     //  Hide control Next
-    //  this.scrollPosition > this.cardsScrollContainer.offsetWidth - this.cardsScroll.offsetWidth
-    //   ? this.showControlNext(true)
-    //   : this.showControlNext(false)
-    this.showControlNext(true);
+    this.scrollPosition > this.cardsScrollContainer.offsetWidth - this.cardsScroll.offsetWidth
+      ? this.showControlNext(true)
+      : this.showControlNext(false)
+    // this.showControlNext(true);
   }
 
-
+  /**
+   * Hide both (previous and next) controls.
+   */
   hideControls() {
     this.showControlPrevious(false);
     this.showControlNext(false);
   }
 
-
+  /**
+   * Show/Hide "previous" control.
+   * @param {boolean} status
+   */
   showControlPrevious(status) {
     status === true
       ? this.controlPrevious.classList.remove('hidden')
       : this.controlPrevious.classList.add('hidden');
   }
 
-
+  /**
+   * Show/Hide "next" control.
+   * @param {boolean} status
+   */
   showControlNext(status) {
     status === true
       ? this.controlNext.classList.remove('hidden')
       : this.controlNext.classList.add('hidden');
   }
 
-
+  /**
+   * scroll to the previous card (back).
+   */
   scrollPrevious() {
     const offsetLeft = this.cardsScroll.offsetLeft;
     if (offsetLeft + this.stepSize > 0) {
@@ -120,7 +151,9 @@ export default class Carousel {
     this.showControls();
   }
 
-
+  /**
+   * scroll to the next card (forward).
+   */
   scrollNext() {
     const offsetRight = this.cardsScroll.offsetWidth - this.cardsScrollContainer.offsetWidth + this.cardsScroll.offsetLeft;
     if (offsetRight - this.stepSize < 0) {
@@ -131,7 +164,10 @@ export default class Carousel {
     this.showControls();
   }
 
-
+  /**
+   * Show/Hide cards loader when a new chunk is loading.
+   * @param {boolean} status
+   */
   showLoader(status) {
     if (status === true) {
       // loader template
@@ -157,7 +193,10 @@ export default class Carousel {
     }
   }
 
-
+  /**
+   * Append a new chunk of cards to the carousel.
+   * @param {number} [cardsNum] - Number of cards to load by the fetchCards function
+   */
   appendCards(cardsNum) {
     // card template
     const cardTemplate = (card) => `
@@ -184,15 +223,18 @@ export default class Carousel {
       </div>
     `;
 
-    // HELPERS
-    // map content type label
+    /**
+     * helper - map the content type property to the output string.
+     */
     const typesMap = {
       'video': 'VIDEO',
       'elearning': 'ELEARNING',
       'learning_plan': 'LEARNING PLAN',
       'playlist': 'PLAYLIST',
     }
-    // transforms duration (seconds) into human readable time string
+    /**
+     * helper - transforms duration property (seconds) into human readable time string.
+     */
     const toReadableDuration = (duration) => {
       const hours = Math
         .floor(duration / 3600).toString()
@@ -212,11 +254,11 @@ export default class Carousel {
 
     // append cards
     this.fetchCards(cardsNum)
-      .then(resolve => {
+      .then(response => {
         // remove loader
         this.showLoader(false);
         // append loaded cards
-        const newCards = resolve.reduce((acc, curr) => {
+        const newCards = response.reduce((acc, curr) => {
           return acc + cardTemplate(curr)
         }, this.cardsScroll.innerHTML);
         this.cardsScroll.innerHTML = newCards;

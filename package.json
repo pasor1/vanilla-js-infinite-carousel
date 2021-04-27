@@ -1,7 +1,7 @@
 {
   "name": "vanilla-js-carousel",
   "version": "1.0.0",
-  "description": "",
+  "description": "Configurable vanilla javascript carousel",
   "main": "index.js",
   "scripts": {
     "dev": "parcel src/index.html",
