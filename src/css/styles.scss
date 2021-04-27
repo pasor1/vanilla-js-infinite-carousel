@@ -1,10 +1,47 @@
+$small: 576px;
+$medium: 768px;
+$large: 992px;
+$x-large: 1200px;
+$xx-large: 1400px;
+
 * {
   box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  padding: 0;
   font-family: "Open Sans", sans-serif;
   color: #3a3838;
+}
+
+main {
+  width: 340px;
+  margin: auto;
+}
+
+@media screen and (min-width: $small) {
+  main {
+    width: 520px;
+  }
+}
+
+@media screen and (min-width: $medium) {
+  main {
+    width: 710px;
+  }
+}
+
+@media screen and (min-width: $large) {
+  main {
+    width: 940px;
+  }
+}
+@media screen and (min-width: $x-large) {
+  main {
+    width: 1150px;
+  }
+}
+@media screen and (min-width: $xx-large) {
+  main {
+    width: 1350px;
+  }
 }
