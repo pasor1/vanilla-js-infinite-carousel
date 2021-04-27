@@ -1,6 +1,6 @@
 /** Class representing a carousel */
 
-export default class Carousel {
+class Carousel {
   /**
    * set the carousel.
    * @param {Object} options - Carousel options.
