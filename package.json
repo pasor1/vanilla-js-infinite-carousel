@@ -18,9 +18,7 @@
     "gulp-rename": "^2.0.0",
     "gulp-sass": "^4.1.0",
     "gulp-terser": "^1.2.1",
+    "gulp-webserver": "^0.9.1",
     "node-sass": "^5.0.0"
-  },
-  "dependencies": {
-    "gulp-webserver": "^0.9.1"
   }
 }
