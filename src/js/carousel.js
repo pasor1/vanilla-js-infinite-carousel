@@ -1,5 +1,4 @@
 /** Class representing a carousel */
-
 class Carousel {
   /**
    * set the carousel.
@@ -13,7 +12,6 @@ class Carousel {
    * @param {!number} [options.imgHeight=100] - Image inside card height (px)..
    * @param {!string} options.containerSelector - ID selector where render the carousel.
    * @callback options.fetchCards - function returning an object representing the carousel content (cards).
-   * options.fetchCards
    */
   constructor(options) {
     const settings = {
@@ -36,11 +34,12 @@ class Carousel {
     this.cardGutter = settings.cardGutter;
     this.cardHeight = settings.cardHeight;
     this.imgHeight = settings.imgHeight;
-    this.stepSize = this.cardWidth + this.cardGutter * 2;
+    this.stepSize = this.cardWidth + (this.cardGutter * 2);
     this.chunkSize = 6;
     this.scrollPosition = 0;
     this.init();
   }
+
 
   /**
    * Initialize the carousel and put it into the DOM.
@@ -73,41 +72,38 @@ class Carousel {
         </a>
       </div>
     `;
-
     // put corousel into the DOM
     this.carouselContainer = document.querySelector(`#${this.containerSelector}`);
     this.carouselContainer.classList.add('carousel');
     this.carouselContainer.innerHTML = carouselTemplate(this.title, this.subtitle);
-
     // set elements 
     this.controlPrevious = document.querySelector(`#${this.containerSelector} .previous`);
     this.controlNext = document.querySelector(`#${this.containerSelector} .next`);
     this.cardsScrollContainer = document.querySelector(`#${this.containerSelector} .cards-container`);
     this.cardsScroll = document.querySelector(`#${this.containerSelector} .cards-scroll`);
-
     // set listeners
     this.carouselContainer.addEventListener('mouseenter', () => this.showControls());
     this.carouselContainer.addEventListener('mouseleave', () => this.hideControls());
     this.controlPrevious.addEventListener('mousedown', () => this.scrollPrevious());
     this.controlNext.addEventListener('mousedown', () => this.scrollNext());
-
+    this.cardsScroll.addEventListener('touchstart', (event) => this.swipeHandler(event), false);
+    this.cardsScroll.addEventListener('touchmove', (event) => this.swipeHandler(event), false);
+    this.cardsScroll.addEventListener('touchend', (event) => this.swipeHandler(event), false);
     // add first cards chunck
     this.appendCards(this.chunkSize);
   };
 
+
   /**
-   * Check controls (previous and next) visbility permissions and show it.
+   * Check controls visbility conditions, and show or hide previous.
    */
   showControls() {
-    this.scrollPosition < 0
+    this.scrollPosition > 0
       ? this.showControlPrevious(true)
       : this.showControlPrevious(false);
-    //  Hide control Next
-    this.scrollPosition > this.cardsScrollContainer.offsetWidth - this.cardsScroll.offsetWidth
-      ? this.showControlNext(true)
-      : this.showControlNext(false)
-    // this.showControlNext(true);
+    this.showControlNext(true);
   }
+
 
   /**
    * Hide both (previous and next) controls.
@@ -116,6 +112,7 @@ class Carousel {
     this.showControlPrevious(false);
     this.showControlNext(false);
   }
+
 
   /**
    * Show/Hide "previous" control.
@@ -127,6 +124,7 @@ class Carousel {
       : this.controlPrevious.classList.add('hidden');
   }
 
+
   /**
    * Show/Hide "next" control.
    * @param {boolean} status
@@ -137,32 +135,72 @@ class Carousel {
       : this.controlNext.classList.add('hidden');
   }
 
+
+  /**
+   * touch swipe handler.
+   */
+  swipeHandler(event) {
+    event.preventDefault();
+    if (event.type === 'touchstart') {
+      this.touchStartX = event.changedTouches[0].clientX;
+      this.scrollStartX = this.cardsScroll.offsetLeft;
+    } else if (event.type === 'touchmove') {
+      this.cardsScroll.style.transitionDuration = '0.05s';
+      const touchCurrentX = event.changedTouches[0].clientX;
+      const touchDistanceX = touchCurrentX - this.touchStartX;
+      if (this.scrollStartX + touchDistanceX > 0) {
+        this.cardsScroll.style.left = '0px';
+      } else {
+        this.cardsScroll.style.left = `${this.scrollStartX + touchDistanceX}px`;
+      }
+    } else if (event.type === 'touchend') {
+      this.cardsScroll.style.transitionDuration = '0.4s';
+      //smooth end transition
+      const touchCurrentX = event.changedTouches[0].clientX;
+      const touchDistanceX = touchCurrentX - this.touchStartX;
+      if (this.scrollStartX + touchDistanceX > 0) {
+        this.cardsScroll.style.left = '0px';
+      } else {
+        this.cardsScroll.style.left = `${this.scrollStartX + touchDistanceX}px`;
+      };
+      this.appendActivator()
+    }
+  }
+
+
   /**
    * scroll to the previous card (back).
    */
   scrollPrevious() {
-    const offsetLeft = this.cardsScroll.offsetLeft;
-    if (offsetLeft + this.stepSize > 0) {
-      this.scrollPosition = 0
-    } else {
-      this.scrollPosition = this.cardsScroll.offsetLeft + this.stepSize
+    if (this.scrollPosition > 0) {
+      this.scrollPosition--;
+      this.cardsScroll.style.left = `-${this.scrollPosition * this.stepSize}px`;
     }
-    this.cardsScroll.style.left = `${this.scrollPosition}px`;
     this.showControls();
   }
+
 
   /**
    * scroll to the next card (forward).
    */
   scrollNext() {
+    this.appendActivator();
+    this.scrollPosition++;
+    this.cardsScroll.style.left = `-${this.scrollPosition * this.stepSize}px`;
+    this.showControls();
+  }
+
+
+  /**
+    * Check if scroll is at the end, and if so append cards
+    */
+  appendActivator() {
     const offsetRight = this.cardsScroll.offsetWidth - this.cardsScrollContainer.offsetWidth + this.cardsScroll.offsetLeft;
     if (offsetRight - this.stepSize < 0) {
       this.appendCards();
     }
-    this.scrollPosition = this.cardsScroll.offsetLeft - this.stepSize;
-    this.cardsScroll.style.left = `${this.scrollPosition}px`;
-    this.showControls();
   }
+
 
   /**
    * Show/Hide cards loader when a new chunk is loading.
@@ -193,8 +231,9 @@ class Carousel {
     }
   }
 
+
   /**
-   * Append a new chunk of cards to the carousel.
+   * Append a new cards chunk to the carousel.
    * @param {number} [cardsNum] - Number of cards to load by the fetchCards function
    */
   appendCards(cardsNum) {
@@ -222,19 +261,14 @@ class Carousel {
         : ''}
       </div>
     `;
-
-    /**
-     * helper - map the content type property to the output string.
-     */
+    //helper - map the content type property to the output string.
     const typesMap = {
       'video': 'VIDEO',
       'elearning': 'ELEARNING',
       'learning_plan': 'LEARNING PLAN',
       'playlist': 'PLAYLIST',
     }
-    /**
-     * helper - transforms duration property (seconds) into human readable time string.
-     */
+    // helper - transforms duration property (seconds) into human readable time string.
     const toReadableDuration = (duration) => {
       const hours = Math
         .floor(duration / 3600).toString()
@@ -248,10 +282,8 @@ class Carousel {
       }
       return `${minutes}:${seconds}`
     }
-
     // append loader
     this.showLoader(true);
-
     // append cards
     this.fetchCards(cardsNum)
       .then(response => {
