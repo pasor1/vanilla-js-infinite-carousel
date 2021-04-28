@@ -88,8 +88,8 @@ class Carousel {
     // set listeners
     this.carouselContainer.addEventListener('mouseenter', () => this.showControls());
     this.carouselContainer.addEventListener('mouseleave', () => this.hideControls());
-    this.controlPrevious.addEventListener('click', () => this.scrollPrevious());
-    this.controlNext.addEventListener('click', () => this.scrollNext());
+    this.controlPrevious.addEventListener('mousedown', () => this.scrollPrevious());
+    this.controlNext.addEventListener('mousedown', () => this.scrollNext());
 
     // add first cards chunck
     this.appendCards(this.chunkSize);
