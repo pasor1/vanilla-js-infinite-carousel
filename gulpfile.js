@@ -45,7 +45,7 @@ function serve() {
   return gulp.src('dist/')
     .pipe(webserver({
       host: 'localhost',
-      port: 5000,
+      port: 1234,
       livereload: true,
       open: true,
       fallback: 'dist/index.html'
