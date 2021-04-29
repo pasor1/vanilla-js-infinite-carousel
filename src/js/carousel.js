@@ -14,6 +14,7 @@ export default class Carousel {
    */
   constructor(options) {
     const settings = {
+      containerSelector: 'container',
       title: '',
       subtitle: '',
       icon: 'tungsten',
@@ -25,14 +26,14 @@ export default class Carousel {
     };
 
     this.containerSelector = settings.container;
-    this.fetchCards = settings.fetchCards;
-    this.icon = settings.icon;
     this.title = settings.title;
     this.subtitle = settings.subtitle;
+    this.icon = settings.icon;
     this.cardWidth = settings.cardWidth;
     this.cardGutter = settings.cardGutter;
     this.cardHeight = settings.cardHeight;
     this.imgHeight = settings.imgHeight;
+    this.fetchCards = settings.fetchCards;
     this.stepSize = this.cardWidth + (this.cardGutter * 2);
     this.chunkSize = 6;
     this.scrollCurrentPosition = 0;
