@@ -5,8 +5,8 @@ New cards are loaded dinamically when you scroll at the most right card.
 
 There are 2 version:
 
-- branch `main`: uses [Parcel](https://parceljs.org/) as bundler to build the demo page web app.
-- branch `stand-alone`: old school, uses [Gulp](https://gulpjs.com/) as task manager to build a stand-alone version of the carousel. In this branch you can find the ready for procuction script and style, check the folder `dist`.
+- branch [**main**](https://github.com/pasor1/vanilla-js-infinite-carousel/tree/main): uses [Parcel](https://parceljs.org/) as bundler to build the demo page web app.
+- branch [**stand-alone**](https://github.com/pasor1/vanilla-js-infinite-carousel/tree/stand-alone): old school, uses [Gulp](https://gulpjs.com/) as task manager to build a stand-alone version of the carousel. In this branch you can find the ready for procuction script and style, check the folder `dist`.
 
 ## Demo
 
