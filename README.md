@@ -10,6 +10,8 @@ There are 2 version:
 
 ## Demo
 
+[**CAROUSEL DEMO PAGE**](https://pasor1.github.io/vanilla-js-infinite-carousel "Carousel Demo Page")
+
 ## Test & Build
 
 You need [nodejs](https://nodejs.org/) and npm.
