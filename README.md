@@ -138,9 +138,9 @@ Don't forget font icons
 />
 ```
 
-### Card structure
+## Card structure
 
-```json
+```js
 {
   "image": "https://picsum.photos/seed/6/200/100", // image URL
   "type": "elearning", // content type. Allowed: video, elearning, learning_plan, playlist
@@ -152,14 +152,14 @@ Don't forget font icons
 
 ## Options
 
-| Option     | Type      | Default  | Description                                                                                                                                                                                                 |
-| ---------- | --------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| container  | string    | carousel | The _id_ of the carousel container in the HTML markup                                                                                                                                                       |
-| title      | string    |          | The title shown in the carousel header                                                                                                                                                                      |
-| subtitle   | string    |          | The subtitle shown in the carousel header                                                                                                                                                                   |
-| icon       | string    | tungsten | The icon shown in the carousel header, from [material icons](https://fonts.google.com/icons)                                                                                                                |
-| cardWidth  | int       | 200      | The width of a single card                                                                                                                                                                                  |
-| cardHeight | int       | 240      | The height of a single card                                                                                                                                                                                 |
-| cardGutter | int       | 10       | The Margin between cards (px)                                                                                                                                                                               |
-| imgHeight  | int       | 100      | The height of the image inside the card                                                                                                                                                                     |
-| fetchCards | `promise` |          | **MANDATORY** A function that return a promise containing carousel data content. In the eaxample is custome promise, but generally shoul be a response from a fetch that retrieves data from a remote JSON. |
+| Option     | Type      | Default  | Description                                                                                                                                                                                                   |
+| ---------- | --------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| container  | string    | carousel | The _id_ of the carousel container in the HTML markup                                                                                                                                                         |
+| title      | string    |          | The title shown in the carousel header                                                                                                                                                                        |
+| subtitle   | string    |          | The subtitle shown in the carousel header                                                                                                                                                                     |
+| icon       | string    | tungsten | The icon shown in the carousel header, from [material icons](https://fonts.google.com/icons)                                                                                                                  |
+| cardWidth  | int       | 200      | The width of a single card                                                                                                                                                                                    |
+| cardHeight | int       | 240      | The height of a single card                                                                                                                                                                                   |
+| cardGutter | int       | 10       | The Margin between cards (px)                                                                                                                                                                                 |
+| imgHeight  | int       | 100      | The height of the image inside the card                                                                                                                                                                       |
+| fetchCards | `promise` |          | **MANDATORY** - A function that return a promise containing carousel data content. In the eaxample is custome promise, but generally shoul be a response from a fetch that retrieves data from a remote JSON. |
