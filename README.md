@@ -1,9 +1,9 @@
 # vanilla-js-infinite-carousel
 
 A carousel coded in vanilla javascript. You can scroll the cards using the "previous" and "next" commands, or swiping (BETA) if on a touch device.
-New cards are loaded dinamically when you scroll at the most right card.
+New cards are loaded dinamically when you scroll to the most right card.
 
-There are 2 version:
+There are 2 versions:
 
 - branch [**main**](https://github.com/pasor1/vanilla-js-infinite-carousel/tree/main): uses [Parcel](https://parceljs.org/) as bundler to build the demo page web app.
 - branch [**stand-alone**](https://github.com/pasor1/vanilla-js-infinite-carousel/tree/stand-alone): old school, uses [Gulp](https://gulpjs.com/) as task manager to build a stand-alone version of the carousel. In this branch you can find the ready for procuction script and style, check the folder `dist`.
