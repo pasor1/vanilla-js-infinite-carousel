@@ -7,11 +7,11 @@ class Carousel {
    * @param {string} [options.subtitle=] - Subtitle shown in header.
    * @param {string} [options.icon=tungsten] - Icon shown in header, from material icons https://fonts.google.com/icons.
    * @param {!number} [options.cardWidth=200] - Card width (px).
-   * @param {!number} [options.cardGutter=10] - Space between cards (px).
    * @param {!number} [options.cardHeight=240] - Card height (px).
-   * @param {!number} [options.imgHeight=100] - Image inside card height (px)..
+   * @param {!number} [options.cardGutter=10] - Margin between cards (px).
+   * @param {!number} [options.imgHeight=100] - Image height, inside card (px)..
    * @param {!string} options.containerSelector - ID selector where render the carousel.
-   * @callback options.fetchCards - function returning an object representing the carousel content (cards).
+   * @callback options.fetchCards - function returning a promise representing the carousel content (cards).
    */
   constructor(options) {
     const settings = {
@@ -36,7 +36,7 @@ class Carousel {
     this.imgHeight = settings.imgHeight;
     this.stepSize = this.cardWidth + (this.cardGutter * 2);
     this.chunkSize = 6;
-    this.scrollPosition = 0;
+    this.scrollCurrentPosition = 0;
     this.init();
   }
 
@@ -73,17 +73,17 @@ class Carousel {
       </div>
     `;
     // put corousel into the DOM
-    this.carouselContainer = document.querySelector(`#${this.containerSelector}`);
-    this.carouselContainer.classList.add('carousel');
-    this.carouselContainer.innerHTML = carouselTemplate(this.title, this.subtitle);
+    this.mainContainer = document.querySelector(`#${this.containerSelector}`);
+    this.mainContainer.classList.add('carousel');
+    this.mainContainer.innerHTML = carouselTemplate(this.title, this.subtitle);
     // set elements 
     this.controlPrevious = document.querySelector(`#${this.containerSelector} .previous`);
     this.controlNext = document.querySelector(`#${this.containerSelector} .next`);
     this.cardsScrollContainer = document.querySelector(`#${this.containerSelector} .cards-container`);
     this.cardsScroll = document.querySelector(`#${this.containerSelector} .cards-scroll`);
     // set listeners
-    this.carouselContainer.addEventListener('mouseenter', () => this.showControls());
-    this.carouselContainer.addEventListener('mouseleave', () => this.hideControls());
+    this.mainContainer.addEventListener('mouseenter', () => this.showControls());
+    this.mainContainer.addEventListener('mouseleave', () => this.hideControls());
     this.controlPrevious.addEventListener('mousedown', () => this.scrollPrevious());
     this.controlNext.addEventListener('mousedown', () => this.scrollNext());
     this.cardsScroll.addEventListener('touchstart', (event) => this.swipeHandler(event), false);
@@ -98,7 +98,7 @@ class Carousel {
    * Check controls visbility conditions, and show or hide previous.
    */
   showControls() {
-    this.scrollPosition > 0
+    this.scrollCurrentPosition > 0
       ? this.showControlPrevious(true)
       : this.showControlPrevious(false);
     this.showControlNext(true);
@@ -137,44 +137,12 @@ class Carousel {
 
 
   /**
-   * touch swipe handler.
-   */
-  swipeHandler(event) {
-    event.preventDefault();
-    if (event.type === 'touchstart') {
-      this.touchStartX = event.changedTouches[0].clientX;
-      this.scrollStartX = this.cardsScroll.offsetLeft;
-    } else if (event.type === 'touchmove') {
-      this.cardsScroll.style.transitionDuration = '0.05s';
-      const touchCurrentX = event.changedTouches[0].clientX;
-      const touchDistanceX = touchCurrentX - this.touchStartX;
-      if (this.scrollStartX + touchDistanceX > 0) {
-        this.cardsScroll.style.left = '0px';
-      } else {
-        this.cardsScroll.style.left = `${this.scrollStartX + touchDistanceX}px`;
-      }
-    } else if (event.type === 'touchend') {
-      this.cardsScroll.style.transitionDuration = '0.4s';
-      //smooth end transition
-      const touchCurrentX = event.changedTouches[0].clientX;
-      const touchDistanceX = touchCurrentX - this.touchStartX;
-      if (this.scrollStartX + touchDistanceX > 0) {
-        this.cardsScroll.style.left = '0px';
-      } else {
-        this.cardsScroll.style.left = `${this.scrollStartX + touchDistanceX}px`;
-      };
-      this.appendActivator()
-    }
-  }
-
-
-  /**
    * scroll to the previous card (back).
    */
   scrollPrevious() {
-    if (this.scrollPosition > 0) {
-      this.scrollPosition--;
-      this.cardsScroll.style.left = `-${this.scrollPosition * this.stepSize}px`;
+    if (this.scrollCurrentPosition > 0) {
+      this.scrollCurrentPosition--;
+      this.cardsScroll.style.left = `-${this.scrollCurrentPosition * this.stepSize}px`;
     }
     this.showControls();
   }
@@ -185,8 +153,8 @@ class Carousel {
    */
   scrollNext() {
     this.appendActivator();
-    this.scrollPosition++;
-    this.cardsScroll.style.left = `-${this.scrollPosition * this.stepSize}px`;
+    this.scrollCurrentPosition++;
+    this.cardsScroll.style.left = `-${this.scrollCurrentPosition * this.stepSize}px`;
     this.showControls();
   }
 
@@ -200,7 +168,6 @@ class Carousel {
       this.appendCards();
     }
   }
-
 
   /**
    * Show/Hide cards loader when a new chunk is loading.
@@ -294,6 +261,46 @@ class Carousel {
           return acc + cardTemplate(curr)
         }, this.cardsScroll.innerHTML);
         this.cardsScroll.innerHTML = newCards;
+        // TEMPORARY FIX: prevent empty carousel when swipe very fast, need better way to solve this issue.
+        this.appendActivator();
       });
+  }
+
+
+  /**
+   * touch swipe handler.
+   * BETA: need improvments or better approach!
+   */
+  swipeHandler(event) {
+    event.preventDefault();
+    if (event.type === 'touchstart') {
+      this.touchStartX = event.changedTouches[0].clientX;
+      this.scrollStartX = this.cardsScroll.offsetLeft;
+    } else if (event.type === 'touchmove') {
+      this.cardsScroll.style.transitionDuration = '0.05s'; // improve scroll reactivity
+      this.lastInterval = this.touchCurrentX - event.changedTouches[0].clientX; // represent the actual swipe speed, needed for smooth end transition
+      this.touchCurrentX = event.changedTouches[0].clientX;
+      const touchDistanceX = this.touchCurrentX - this.touchStartX;
+      if (this.scrollStartX + touchDistanceX > 0) {
+        this.cardsScroll.style.left = '0px';
+      } else {
+        this.cardsScroll.style.left = `${this.scrollStartX + touchDistanceX}px`;
+      }
+    } else if (event.type === 'touchend') {
+      //smooth end transition
+      this.cardsScroll.style.transitionDuration = '0.6s';
+      let touchDistanceX = event.changedTouches[0].clientX - this.touchStartX;
+      while (Math.abs(this.lastInterval) > 1) {
+        if (this.scrollStartX + touchDistanceX > 0) {
+          this.cardsScroll.style.left = '0px';
+          this.lastInterval = 0;
+        } else {
+          this.cardsScroll.style.left = `${this.scrollStartX + touchDistanceX}px`;
+          touchDistanceX = touchDistanceX - this.lastInterval;
+          this.lastInterval /= 1.08; // slowdown factor
+        }
+      };
+      this.appendActivator();
+    }
   }
 }
